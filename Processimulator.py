@@ -1,4 +1,5 @@
 from ast import Return
+from itertools import accumulate
 from pickle import FALSE
 import string
 from time import sleep
@@ -32,65 +33,106 @@ class Simulator:
         self.max_next_IO_time = max_next_IO_time
         self.max_IO_execution_time = max_IO_execution_time
         self.quantum = quantum
-        self.nextProcessCreator = 0
+        self.nextProcessCreator = self.randomGeneratorTimeNextProcess();
         self.actualProcess= None
         self.processCreator = ProcessCreator(0)
         self.cpu = Cpu()
         self.blocketProcessList= []
         self.readyProcessList = []
+        self.finishedProcesses = 0
 
     def print_quantum(self):
         print(self.quantum)
 
     def randomGeneratorTimeNextProcess(self):
-        return random.randint(0,self.max_next_process_time)
+        return random.randint(2,self.max_next_process_time)
 
     def start(self):
-        self.actualProcess = self.processCreator.createProcess(self.max_process_life_time,self.max_next_IO_time,self.max_IO_execution_time)
-        self.actualProcess.setQuantum(self.quantum)
-        self.actualProcess.setStatus("running")
-        self.nextProcessCreator = self.randomGeneratorTimeNextProcess()
+        self.nextProcessCreator = 1
         while(self.simulation_time>0):
             self.showInformation()
-            if self.actualProcess != None:
-                self.actualProcess.print_information()
-                if self.actualProcess.getQuantum()>0:
-                    self.actualProcess.setQuantum(self.actualProcess.getQuantum()-1)
-                if self.actualProcess.getQuantum() == 0:
-                    self.blocketProcessList.append(self.actualProcess)
-                    self.actualProcess=None
-            else:
-                print("none");
-            if self.nextProcessCreator <= 0:
-                self.readyProcessList.append(self.processCreator.createProcess(self.max_process_life_time,self.max_next_IO_time,self.max_IO_execution_time))
-                self.nextProcessCreator = self.randomGeneratorTimeNextProcess()
+            self.updateIoInBlockedList()
+            self.nextProcessActualization()
+            self.actualProcessActualization()
+            self.actualizateSimulatiorTimer()
             if self.actualProcess==None:
                 self.cpu.setBussy(False)
                 if len(self.readyProcessList)>0:
                     self.actualProcess = self.readyProcessList.pop(0)
-                    self.actualProcess.setQuantum(self.quantum)                    
-            self.simulation_time = self.simulation_time-1
-            self.nextProcessCreator = self.nextProcessCreator-1
-            self.cpu.process()
+                    self.actualProcess.setQuantum(self.quantum) 
+                    self.cpu.setBussy(True)
+            # self.cpu.process()
 
     def showInformation(self):
             print("----------------------------------")
             print("Tiempo restante : ",self.simulation_time)
-            print("Creacion Proximo Proceso: ",self.nextProcessCreator)
-            print("Ready processes queue")
+            print("CPU:", end = " ")
+            if self.cpu.getBussy():
+                print("Bussy")
+            else:
+                print("Idle")
+            if self.actualProcess != None:
+                print("-> Process: ",end=" ")
+                self.actualProcess.print_information()
+            else:
+                print("none")
+            print("\n Ready processes queue")
             if len(self.readyProcessList) >0:
                 for i in self.readyProcessList:
+                    print("-> Process -> ",end=" ")
                     i.print_information()
             else:
                 print("None")
-            print("blocked processes queue")
+            print("\n blocked processes queue")
             if len(self.blocketProcessList) >0:
                 for j in self.blocketProcessList:
+                    print("-> Process -> ",end=" ")
                     j.print_information()
             else:
-                print("None")
-            
-            
+                print(" None")
+            print("\nEvents")
+            print("Creacion Proximo Proceso: ",self.nextProcessCreator)
+
+    def actualProcessActualization(self):
+         if self.actualProcess != None:
+                if self.actualProcess.getLifeTime()<=0:
+                    self.actualProcess=None
+                    self.finishedProcesses = self.finishedProcesses +1
+                if self.actualProcess != None:
+                    if self.actualProcess.getNextIo()<=0:
+                        self.actualProcess.setNextIo(self.actualProcess.getDefaultNextIo())
+                        self.actualProcess.setQuantum(0)
+                        self.blocketProcessList.append(self.actualProcess)
+                        self.actualProcess.setStatus("Blocked")
+                        self.actualProcess=None
+                if self.actualProcess!=None:
+                    if self.actualProcess.getQuantum()>0:
+                        self.actualProcess.setNextIo(self.actualProcess.getNextIo()-1)
+                        self.actualProcess.setQuantum(self.actualProcess.getQuantum()-1)
+                        self.actualProcess.setLifeTime(self.actualProcess.getLifeTime()-1)   
+                    elif self.actualProcess.getQuantum() == 0:
+                        self.actualProcess.setStatus("Ready")
+                        self.readyProcessList.append(self.actualProcess)
+                        self.actualProcess=None
+
+    def actualizateSimulatiorTimer(self):
+        self.simulation_time = self.simulation_time-1
+        self.nextProcessCreator = self.nextProcessCreator-1
+
+    def nextProcessActualization(self):
+        if self.nextProcessCreator <= 0:
+            self.readyProcessList.append(self.processCreator.createProcess(self.max_process_life_time,self.max_next_IO_time,self.max_IO_execution_time))
+            self.nextProcessCreator = self.randomGeneratorTimeNextProcess()
+            print("Process ", self.processCreator.getProcessNumber(), " was created")
+
+    def updateIoInBlockedList(self):
+        for n in self.blocketProcessList:
+            if n.getIo() <=0:
+                n.setIo(n.getDefaultIo())
+                self.readyProcessList.append(n)
+                self.blocketProcessList.remove(n)
+            else:
+                n.setIo(n.getIo() - 1)
 
 class Process:
 
@@ -101,9 +143,39 @@ class Process:
         self.IO = IO
         self.status = status
         self.quantum = 0
+        self.default_life_time = life_Time
+        self.default_nextIo = NextIO
+        self.default_IO = IO
+
+    def getId(self):
+        return id
+
+    def setNextIo(self,newNextIo):
+        self.NextIO=newNextIo
+
+    def getNextIo(self):
+        return self.NextIO
+
+    def setIo(self,newIO):
+        self.IO = newIO
+
+    def getIo(self):
+        return self.IO
+
+    def getDefaultIo(self):
+        return self.default_IO
 
     def setQuantum(self,newQuantum):
         self.quantum = newQuantum
+
+    def setLifeTime(self,newLifeTime):
+        self.life_Time = newLifeTime
+
+    def getLifeTime(self):
+        return self.life_Time
+
+    def getDefaultNextIo(self):
+        return self.default_nextIo
 
     def getQuantum(self):
         return self.quantum
@@ -112,12 +184,15 @@ class Process:
         self.status = newStatus
 
     def print_information(self):
-        print("Id: " , self.id , ", Life Time: " , self.life_Time , ", Next IO: ", self.NextIO , ", IO: " , self.IO , ", Status: " , self.status , ", quantum: " ,  self.quantum)
+        print("Id: " , self.id , ", Life Time: ", self.life_Time,"/" , self.default_life_time , ", Next IO:",self.NextIO,"/" , self.default_nextIo , ", IO: " , self.IO ,"/",self.default_IO ,", Status: " , self.status , ", quantum: " ,  self.quantum)
 
 class ProcessCreator:
 
     def __init__(self,processNumber):
         self.processNumber=processNumber
+
+    def getProcessNumber(self):
+        return self.processNumber
 
     def generateRandomTimeLife(self,max_process_life_time):
         return random.randint(1,max_process_life_time)
