@@ -60,12 +60,14 @@ class Simulator:
                 if len(self.readyProcessList)>0:
                     self.actualProcess = self.readyProcessList.pop(0)
                     self.actualProcess.setQuantum(self.quantum) 
+                    self.actualProcess.setStatus("Runnig")
+                    print("Process ", self.actualProcess.getId(), "assigned to CPU")
                     self.cpu.setBussy(True)
-            # self.cpu.process()
+            self.cpu.process()
 
     def showInformation(self):
             print("----------------------------------")
-            print("Tiempo restante : ",self.simulation_time)
+            print("End of simulation in : ",self.simulation_time)
             print("CPU:", end = " ")
             if self.cpu.getBussy():
                 print("Bussy")
@@ -91,7 +93,7 @@ class Simulator:
             else:
                 print(" None")
             print("\nEvents")
-            print("Creacion Proximo Proceso: ",self.nextProcessCreator)
+            print("Next process will be created in : ",self.nextProcessCreator)
 
     def actualProcessActualization(self):
          if self.actualProcess != None:
@@ -100,6 +102,7 @@ class Simulator:
                     self.finishedProcesses = self.finishedProcesses +1
                 if self.actualProcess != None:
                     if self.actualProcess.getNextIo()<=0:
+                        print("Process ", self.actualProcess.getId()," assigned to blocked processes queue")
                         self.actualProcess.setNextIo(self.actualProcess.getDefaultNextIo())
                         self.actualProcess.setQuantum(0)
                         self.blocketProcessList.append(self.actualProcess)
@@ -111,6 +114,7 @@ class Simulator:
                         self.actualProcess.setQuantum(self.actualProcess.getQuantum()-1)
                         self.actualProcess.setLifeTime(self.actualProcess.getLifeTime()-1)   
                     elif self.actualProcess.getQuantum() == 0:
+                        print("Process ", self.actualProcess.getId()," assigned to ready processes queue")
                         self.actualProcess.setStatus("Ready")
                         self.readyProcessList.append(self.actualProcess)
                         self.actualProcess=None
@@ -123,12 +127,14 @@ class Simulator:
         if self.nextProcessCreator <= 0:
             self.readyProcessList.append(self.processCreator.createProcess(self.max_process_life_time,self.max_next_IO_time,self.max_IO_execution_time))
             self.nextProcessCreator = self.randomGeneratorTimeNextProcess()
-            print("Process ", self.processCreator.getProcessNumber(), " was created")
+            print("Process ", self.processCreator.getProcessNumber(), " Will be created")
 
     def updateIoInBlockedList(self):
         for n in self.blocketProcessList:
             if n.getIo() <=0:
                 n.setIo(n.getDefaultIo())
+                n.setStatus("Ready")
+                print("Process ", n.getId(), " assigned to ready processes queue")
                 self.readyProcessList.append(n)
                 self.blocketProcessList.remove(n)
             else:
@@ -148,7 +154,7 @@ class Process:
         self.default_IO = IO
 
     def getId(self):
-        return id
+        return self.id
 
     def setNextIo(self,newNextIo):
         self.NextIO=newNextIo
