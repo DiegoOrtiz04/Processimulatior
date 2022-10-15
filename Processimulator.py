@@ -214,5 +214,5 @@ class ProcessCreator:
         return Process(self.processNumber,self.generateRandomTimeLife(max_process_life_time),self.generateRandomIOaction(max_next_IO_time),self.generateRandomIOtimeAction(max_IO_execution_time),"Ready")
 
 
-simulador = Simulator(50,1,5,20,4,4,3)
-simulador.start()
+#simulador = Simulator(50,1,5,20,4,4,3)
+#simulador.start()
