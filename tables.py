@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter.constants import CENTER, NO, END, RIGHT, Y
 import constants as cs
-from Processimulatior.Processimulator import Process
+from Processimulator import Process
 
 window = tk.Tk()
 table_process = ttk.Treeview()
@@ -10,8 +10,6 @@ table_events = ttk.Treeview()
 
 
 def _init():
-    window.geometry('600x400')
-    window.title('Hola mundo')
     table_process_test = _set_properties_table_process()
     table_events_test = _set_properties_table_events()
     _test_table_process(table_process_test) #Este es pa probar
@@ -19,8 +17,8 @@ def _init():
 
 
 
-def _set_properties_table_process():
-    table_frame = tk.Frame(window)
+def _set_properties_table_process(master):
+    table_frame = tk.Frame(master)
     table_frame.pack(pady=20)
     table_scroll = tk.Scrollbar(table_frame)
     table_scroll.pack(side=RIGHT, fill=Y)
@@ -30,8 +28,8 @@ def _set_properties_table_process():
     _create_table_process(table, cs.COLUMNS_PROCESSES_STATUS)
     return table
 
-def _set_properties_table_events():
-    table_frame = tk.Frame(window,width="600",height="100")
+def _set_properties_table_events(master):
+    table_frame = tk.Frame(master,width="600",height="100")
     table_frame.pack(pady=20)
     table_scroll = tk.Scrollbar(table_frame)
     table_scroll.pack(side=RIGHT, fill=Y)
@@ -97,5 +95,3 @@ def _test_table_events(table):
         _addEvents(table,"Este es un nuevo evento $i")
 
 
-_init()
-window.mainloop()

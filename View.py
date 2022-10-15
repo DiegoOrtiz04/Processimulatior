@@ -2,6 +2,7 @@ import time
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
+import tables
 import threading
 
 
@@ -65,8 +66,8 @@ labelHoraSistema.grid(row=1, column=10)
 def updateHour():
     while True:
         labelHoraSistema.config(text=mensajeHora+datetime.now().time().strftime('%H:%M:%S'))
-        print('Hora Actual:'+ mensajeHora+datetime.now().time().strftime('%H:%M:%S'))
         time.sleep(1)
+
 hiloTime=threading.Thread(target=updateHour)
 hiloTime.start()
 
@@ -82,8 +83,7 @@ labelTSimulacion.grid(row=2, column=1, sticky='SWE', columnspan=2)
 #Entrada Tiempo de Simulacion
 
 imageSimulacion=tk.PhotoImage(file='sources/images/entry1.png')
-
-labelEntrySimulacion=tk.Label(ventana,image=imageSimulacion,border=0, bg=colorFondo)
+labelEntrySimulacion=tk.Label(ventana, image=imageSimulacion, border=0, bg=colorFondo)
 labelEntrySimulacion.grid(row=2, column=3, sticky='SWE', columnspan=2)
 entryTSimulacion = tk.Entry(ventana, bg=colorEntry, border=0, font=fuentePrincipal, width=15)
 entryTSimulacion.grid(row=2, column=3, columnspan=2, sticky='S', pady=10)
@@ -129,4 +129,14 @@ labelEventos.grid(row=6, column=6 ,sticky='NSWE', columnspan=5, rowspan=2)
 panelEventos = tk.PanedWindow(ventana, bg='yellow', width=390 , height=130)
 panelEventos.grid(row=6, column=6, columnspan=5, rowspan=2)
 
+
+#Prueba Tablas
+def _init():
+    table_process_test = tables._set_properties_table_process(panelTablaProcesos)
+    table_events_test = tables._set_properties_table_events(panelEventos)
+    tables._test_table_process(table_process_test) #Este es pa probar
+    tables._test_table_events(table_events_test) #Este es pa probar
+
+
+#_init()
 ventana.mainloop()
