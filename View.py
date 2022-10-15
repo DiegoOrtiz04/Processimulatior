@@ -126,26 +126,31 @@ panelEstadoProcesos.grid(row=5, column=1,columnspan=4, rowspan=2)
 
 
 #TextArea Eventos
+
 imageEventos=tk.PhotoImage(file='sources/images/frameEventos.png')
 labelEventos=tk.Label(ventana, image=imageEventos, bg=colorFondo)
 labelEventos.grid(row=6, column=6 ,sticky='NSWE', columnspan=5, rowspan=2)
-panelEventos = tk.PanedWindow(ventana, bg='yellow', width=390 , height=130)
-panelEventos.grid(row=6, column=6, columnspan=5, rowspan=2)
+panelEventos = tk.PanedWindow(ventana, bg=colorFuentePrincipal, width=390 , height=100)
+panelEventos.grid(row=6, column=6, columnspan=5, rowspan=2,sticky='NSWE')
+labelTextEventos = tk.Label(panelEventos, text='Eventos', font=fuentePrincipal, bg=colorFondo)
 panelEventos.columnconfigure(0,weight=1)
 panelEventos.rowconfigure(0,weight=1)
+panelEventos.rowconfigure(1,weight=10)
+
+labelTextEventos.grid(row=0, column=0, sticky='EW')
+
 
 
 #Prueba Tablas
 
 table_process = ttk.Treeview()
-table_events = ttk.Treeview()
-
+table_events= ttk.Treeview()
 
 def _init():
-    table_process_test = _set_properties_table_process(panelTablaProcesos)
-    table_events_test = _set_properties_table_events(panelEventos)
-    _test_table_process(table_process_test) #Este es pa probar
-    _test_table_events(table_events_test) #Este es pa probar
+    table_process = _set_properties_table_process(panelTablaProcesos)
+    table_events = _set_properties_table_events(panelEventos)
+    _test_table_process(table_process) #Este es pa probar
+    _test_table_events(table_events) #Este es pa probar
 
 
 def _set_properties_table_process(master):
@@ -153,20 +158,16 @@ def _set_properties_table_process(master):
     table_frame.pack(pady=20)
     table_scroll = tk.Scrollbar(table_frame)
     table_scroll.pack(side=RIGHT, fill=Y)
-    table = ttk.Treeview(table_frame, yscrollcommand=table_scroll.set)
+    table = ttk.Treeview(table_frame)
     table['columns'] = cs.COLUMNS_NAME
     table_scroll.config(command=table.yview)
     _create_table_process(table, cs.COLUMNS_PROCESSES_STATUS)
     return table
 
 def _set_properties_table_events(master):
-    table_frame = tk.Frame(master)
-    table_frame.grid(row=0,column=0, sticky='NSWE', columnspan=1, rowspan=1)
-    table_scroll = tk.Scrollbar(table_frame)
-    table_scroll.pack(side=RIGHT, fill=Y)
-    table = ttk.Treeview(table_frame, yscrollcommand=table_scroll.set)
-    table_scroll.config(command=table.yview)
-    _create_table_events(table)
+    #table_scroll.pack(side=RIGHT, fill=Y)
+    table = ttk.Treeview(master=master)
+    table.grid(row=1, column=0, sticky='SNWE')
     return table
 
 
@@ -209,7 +210,7 @@ def _addProcess(table, process):
 
 # Add events to table
 def _addEvents(table, text):
-    table.insert("", END, text=text)
+    table.insert("", tk.END, text=text)
 
 
 def _clearTableProcess():
@@ -223,8 +224,8 @@ def _test_table_process(table):
 
 # (self,id,life_Time,NextIO,IO,status):
 def _test_table_events(table):
-    for i in range(10):
-        _addEvents(table,"Este es un nuevo evento $i")
+    for i in range(15):
+        _addEvents(table,f"Este es un nuevo evento ${i}")
 
 
 
