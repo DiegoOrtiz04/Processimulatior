@@ -4,12 +4,13 @@ from tkinter.constants import CENTER, NO, END, RIGHT, Y
 import constants as cs
 from Processimulator import Process
 
-window = tk.Tk()
+#window = tk.Tk()
+
 table_process = ttk.Treeview()
 table_events = ttk.Treeview()
 
-
 def _init():
+
     table_process_test = _set_properties_table_process()
     table_events_test = _set_properties_table_events()
     _test_table_process(table_process_test) #Este es pa probar

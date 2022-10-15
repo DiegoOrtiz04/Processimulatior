@@ -2,8 +2,10 @@ import time
 import tkinter as tk
 from tkinter import ttk
 from datetime import datetime
-import tables
 import threading
+from Processimulator import Process
+from tkinter.constants import CENTER, NO, END, RIGHT, Y
+import constants as cs
 
 
 
@@ -66,8 +68,8 @@ labelHoraSistema.grid(row=1, column=10)
 def updateHour():
     while True:
         labelHoraSistema.config(text=mensajeHora+datetime.now().time().strftime('%H:%M:%S'))
+        print('Hora Actual:'+ mensajeHora+datetime.now().time().strftime('%H:%M:%S'))
         time.sleep(1)
-
 hiloTime=threading.Thread(target=updateHour)
 hiloTime.start()
 
@@ -83,7 +85,8 @@ labelTSimulacion.grid(row=2, column=1, sticky='SWE', columnspan=2)
 #Entrada Tiempo de Simulacion
 
 imageSimulacion=tk.PhotoImage(file='sources/images/entry1.png')
-labelEntrySimulacion=tk.Label(ventana, image=imageSimulacion, border=0, bg=colorFondo)
+
+labelEntrySimulacion=tk.Label(ventana,image=imageSimulacion,border=0, bg=colorFondo)
 labelEntrySimulacion.grid(row=2, column=3, sticky='SWE', columnspan=2)
 entryTSimulacion = tk.Entry(ventana, bg=colorEntry, border=0, font=fuentePrincipal, width=15)
 entryTSimulacion.grid(row=2, column=3, columnspan=2, sticky='S', pady=10)
@@ -128,15 +131,104 @@ labelEventos=tk.Label(ventana, image=imageEventos, bg=colorFondo)
 labelEventos.grid(row=6, column=6 ,sticky='NSWE', columnspan=5, rowspan=2)
 panelEventos = tk.PanedWindow(ventana, bg='yellow', width=390 , height=130)
 panelEventos.grid(row=6, column=6, columnspan=5, rowspan=2)
+panelEventos.columnconfigure(0,weight=1)
+panelEventos.rowconfigure(0,weight=1)
 
 
 #Prueba Tablas
+
+table_process = ttk.Treeview()
+table_events = ttk.Treeview()
+
+
 def _init():
-    table_process_test = tables._set_properties_table_process(panelTablaProcesos)
-    table_events_test = tables._set_properties_table_events(panelEventos)
-    tables._test_table_process(table_process_test) #Este es pa probar
-    tables._test_table_events(table_events_test) #Este es pa probar
+    table_process_test = _set_properties_table_process(panelTablaProcesos)
+    table_events_test = _set_properties_table_events(panelEventos)
+    _test_table_process(table_process_test) #Este es pa probar
+    _test_table_events(table_events_test) #Este es pa probar
 
 
-#_init()
+def _set_properties_table_process(master):
+    table_frame = tk.Frame(master)
+    table_frame.pack(pady=20)
+    table_scroll = tk.Scrollbar(table_frame)
+    table_scroll.pack(side=RIGHT, fill=Y)
+    table = ttk.Treeview(table_frame, yscrollcommand=table_scroll.set)
+    table['columns'] = cs.COLUMNS_NAME
+    table_scroll.config(command=table.yview)
+    _create_table_process(table, cs.COLUMNS_PROCESSES_STATUS)
+    return table
+
+def _set_properties_table_events(master):
+    table_frame = tk.Frame(master)
+    table_frame.grid(row=0,column=0, sticky='NSWE', columnspan=1, rowspan=1)
+    table_scroll = tk.Scrollbar(table_frame)
+    table_scroll.pack(side=RIGHT, fill=Y)
+    table = ttk.Treeview(table_frame, yscrollcommand=table_scroll.set)
+    table_scroll.config(command=table.yview)
+    _create_table_events(table)
+    return table
+
+
+
+def getTableProcess():
+    return table_process
+
+def _create_table_process(table, columnsInput):
+    table.column("#0", width=80, anchor=CENTER)
+    table.column(cs.COLUMNS_NAME[0], width=80, anchor=CENTER)
+    table.column(cs.COLUMNS_NAME[1], width=80, anchor=CENTER)
+    table.column(cs.COLUMNS_NAME[2], width=80, anchor=CENTER)
+    table.column(cs.COLUMNS_NAME[3], width=80, anchor=CENTER)
+    table.column(cs.COLUMNS_NAME[4], width=80, anchor=CENTER)
+    table.heading("#0", text='Process', anchor=CENTER)
+    table.heading(cs.COLUMNS_NAME[0], text=columnsInput[1], anchor=CENTER)
+    table.heading(cs.COLUMNS_NAME[1], text=columnsInput[2], anchor=CENTER)
+    table.heading(cs.COLUMNS_NAME[2], text=columnsInput[3], anchor=CENTER)
+    table.heading(cs.COLUMNS_NAME[3], text=columnsInput[4], anchor=CENTER)
+    table.heading(cs.COLUMNS_NAME[4], text=columnsInput[5], anchor=CENTER)
+    table.pack()
+
+def _create_table_events(table):
+    table.column("#0", width=80, anchor=CENTER)
+    #table.column(cs.COLUMNS_NAME[0], width=80, anchor=CENTER)
+    table.heading("#0", text=cs.COLUMN_NAME_EVENTS, anchor=CENTER)
+    table.pack()
+
+
+
+# Add elements to table
+def _addProcess(table, process):
+    table.insert("", END, text=process.id, values=(
+        process.life_Time,
+        process.NextIO,
+        process.IO,
+        process.status,
+        process.quantum
+    ))
+
+# Add events to table
+def _addEvents(table, text):
+    table.insert("", END, text=text)
+
+
+def _clearTableProcess():
+    table_process.get_children()
+
+
+# (self,id,life_Time,NextIO,IO,status):
+def _test_table_process(table):
+    for i in range(40):
+        _addProcess(table, Process(i, "0/0", "2/2", 2, "Busy"))
+
+# (self,id,life_Time,NextIO,IO,status):
+def _test_table_events(table):
+    for i in range(10):
+        _addEvents(table,"Este es un nuevo evento $i")
+
+
+
+_init()
+
+
 ventana.mainloop()
