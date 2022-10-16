@@ -20,6 +20,7 @@ mensajeEstadoCpu='Estado CPU: '
 mensajeColaProcesos = 'Cola de Procesos en:'
 fuenteTitulo =('Mixed',30)
 fuentePrincipal =('Mixed,20')
+mensajeTablaProcesos='Cola de procesos: '
 
 #Ventana Principal
 ventana = tk.Tk()
@@ -31,14 +32,14 @@ ventana.config(bg=colorFondo)
 
 #Configurar el grid
 ventana.rowconfigure(0, weight=0)
-ventana.rowconfigure(1, weight=2)
-ventana.rowconfigure(2, weight=2)
-ventana.rowconfigure(3, weight=2)
-ventana.rowconfigure(4, weight=2)
-ventana.rowconfigure(5, weight=2)
-ventana.rowconfigure(6, weight=2)
-ventana.rowconfigure(7, weight=2)
-ventana.rowconfigure(8, weight=2)
+ventana.rowconfigure(1, weight=1)
+ventana.rowconfigure(2, weight=1)
+ventana.rowconfigure(3, weight=1)
+ventana.rowconfigure(4, weight=1)
+ventana.rowconfigure(5, weight=1)
+ventana.rowconfigure(6, weight=1)
+ventana.rowconfigure(7, weight=1)
+ventana.rowconfigure(8, weight=1)
 
 ventana.columnconfigure(0, weight=1)
 ventana.columnconfigure(1, weight=1)
@@ -104,8 +105,10 @@ labelEstadoCPU.grid(row=2, column=9, sticky='WE', columnspan=2)
 imageTablaProcesos = tk.PhotoImage(file='sources/images/frameEstadoProcesos.png')
 labelTablaProceso = tk.Label(ventana, image=imageTablaProcesos, bg=colorFondo)
 labelTablaProceso.grid(row=3, column=6, columnspan=7, rowspan=2)
-panelTablaProcesos = tk.PanedWindow(ventana, bg='yellow', width=450, height=140)
+panelTablaProcesos = tk.PanedWindow(ventana, bg='white', width=450, height=140)
 panelTablaProcesos.grid(row=3, column=6, columnspan=7, rowspan=2)
+labelTextProcesos =tk.Label(panelTablaProcesos, text=mensajeTablaProcesos, font=fuentePrincipal, bd=0)
+labelTextProcesos.grid(row=0, column=0, sticky='WE')
 
 
 
@@ -130,16 +133,14 @@ panelEstadoProcesos.grid(row=5, column=1,columnspan=4, rowspan=2)
 imageEventos=tk.PhotoImage(file='sources/images/frameEventos.png')
 labelEventos=tk.Label(ventana, image=imageEventos, bg=colorFondo)
 labelEventos.grid(row=6, column=6 ,sticky='NSWE', columnspan=5, rowspan=2)
-panelEventos = tk.PanedWindow(ventana, bg=colorFuentePrincipal, width=390 , height=100)
-panelEventos.grid(row=6, column=6, columnspan=5, rowspan=2,sticky='NSWE')
-labelTextEventos = tk.Label(panelEventos, text='Eventos', font=fuentePrincipal, bg=colorFondo)
+panelEventos = tk.PanedWindow(ventana, bg='white', width=300 , height=100)
+panelEventos.grid(row=6, column=6, columnspan=5, rowspan=2,sticky='WE', padx=60)
+labelTextEventos = tk.Label(panelEventos, text='Eventos', font=fuentePrincipal,bg='white',bd=0)
 panelEventos.columnconfigure(0,weight=1)
 panelEventos.rowconfigure(0,weight=1)
 panelEventos.rowconfigure(1,weight=10)
 
 labelTextEventos.grid(row=0, column=0, sticky='EW')
-
-
 
 #Prueba Tablas
 
@@ -154,11 +155,11 @@ def _init():
 
 
 def _set_properties_table_process(master):
-    table_frame = tk.Frame(master)
-    table_frame.pack(pady=20)
+    table_frame = tk.Frame(master, bg='white')
+    table_frame.grid(row=1, column=0)
     table_scroll = tk.Scrollbar(table_frame)
     table_scroll.pack(side=RIGHT, fill=Y)
-    table = ttk.Treeview(table_frame)
+    table = ttk.Treeview(table_frame,height=8)
     table['columns'] = cs.COLUMNS_NAME
     table_scroll.config(command=table.yview)
     _create_table_process(table, cs.COLUMNS_PROCESSES_STATUS)
@@ -166,7 +167,8 @@ def _set_properties_table_process(master):
 
 def _set_properties_table_events(master):
     #table_scroll.pack(side=RIGHT, fill=Y)
-    table = ttk.Treeview(master=master)
+    table = ttk.Treeview(master=master,height=4)
+    table.column("#0", anchor=tk.CENTER, stretch=1, width=50)
     table.grid(row=1, column=0, sticky='SNWE')
     return table
 
@@ -224,8 +226,8 @@ def _test_table_process(table):
 
 # (self,id,life_Time,NextIO,IO,status):
 def _test_table_events(table):
-    for i in range(15):
-        _addEvents(table,f"Este es un nuevo evento ${i}")
+    for i in range(5):
+        _addEvents(table,f"Este es un nuevo evento  assssssssssssssssssadsddddddddddddddddddddddddddddsssssssd ${i}")
 
 
 
