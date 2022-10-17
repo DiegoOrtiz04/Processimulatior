@@ -1,13 +1,31 @@
 import time
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from datetime import datetime
 import threading
-from Processimulator import Process
+from Processimulator import Cpu, Process, ProcessCreator,Simulator,dicProcess
 from tkinter.constants import CENTER, NO, END, RIGHT, Y
 import constants as cs
 
 
+#Variable de simulacion
+simulation = Simulator('time',1,5,20,4,4,3)
+#PRoceso al iniciar simulacion
+def startSimulation():
+    try:
+        time = int(variableEntryTSimulacion.get())
+
+        #start()
+        startTread(time)
+    except ValueError:
+        messagebox.showerror('Dato incorrecto', 'Ingresa un numero entero positivo')
+
+
+
+def startTread(time):
+    simulation = Simulator(time, 1, 5, 20, 4, 4, 3)
+    hiloSimulation = threading.Thread(target=simulation.start)
+    hiloSimulation.start()
 
 
 titleWindow = 'Process Manager Project'
@@ -56,6 +74,15 @@ ventana.columnconfigure(11, weight=1)
 ventana.columnconfigure(12, weight=1)
 ventana.columnconfigure(13, weight=1)
 
+def updateTableProcess():
+    table_process.delete(*table_process.get_children())
+    for clave in dicProcess:
+        procesos=dicProcess[clave]
+        _addProcess(table_process, Process(procesos[0], str(procesos[1])+"/"+str(procesos[2]), str(procesos[3])+"/"+str(procesos[4]), str(procesos[5]), str(procesos[6])))
+
+    ventana.after(1000, updateTableProcess)
+
+
 
 #Componente Titulo Principal
 labelTitulo1=tk.Label(ventana,text=titleWindow, bg=colorFondo, fg=colorFuentePrincipal, font=fuenteTitulo)
@@ -69,8 +96,10 @@ labelHoraSistema.grid(row=1, column=10)
 def updateHour():
     while True:
         labelHoraSistema.config(text=mensajeHora+datetime.now().time().strftime('%H:%M:%S'))
-        print('Hora Actual:'+ mensajeHora+datetime.now().time().strftime('%H:%M:%S'))
+        #updateTableProcess()
+        #print('Hora Actual:'+ mensajeHora+datetime.now().time().strftime('%H:%M:%S'))
         time.sleep(1)
+
 hiloTime=threading.Thread(target=updateHour)
 hiloTime.start()
 
@@ -89,12 +118,13 @@ imageSimulacion=tk.PhotoImage(file='sources/images/entry1.png')
 
 labelEntrySimulacion=tk.Label(ventana,image=imageSimulacion,border=0, bg=colorFondo)
 labelEntrySimulacion.grid(row=2, column=3, sticky='SWE', columnspan=2)
-entryTSimulacion = tk.Entry(ventana, bg=colorEntry, border=0, font=fuentePrincipal, width=15)
+variableEntryTSimulacion = tk.StringVar(value='')
+entryTSimulacion = tk.Entry(ventana, bg=colorEntry, border=0, font=fuentePrincipal, width=15, textvariable=variableEntryTSimulacion)
 entryTSimulacion.grid(row=2, column=3, columnspan=2, sticky='S', pady=10)
 
 #BotonStarSimulacion
 imageButtonSimulacion = tk.PhotoImage(file='sources/images/buttom.png')
-bottomStarSimulacion = tk.Button(ventana, image=imageButtonSimulacion, bd=0, bg=colorFondo)
+bottomStarSimulacion = tk.Button(ventana, image=imageButtonSimulacion, bd=0, bg=colorFondo, command=startSimulation)
 bottomStarSimulacion.grid(row=2, column=5, sticky='S')
 
 #Estado CPU
@@ -144,13 +174,10 @@ labelTextEventos.grid(row=0, column=0, sticky='EW')
 
 #Prueba Tablas
 
-table_process = ttk.Treeview()
-table_events= ttk.Treeview()
 
 def _init():
-    table_process = _set_properties_table_process(panelTablaProcesos)
-    table_events = _set_properties_table_events(panelEventos)
-    _test_table_process(table_process) #Este es pa probar
+
+    #_test_table_process(table_process) #Este es pa probar
     _test_table_events(table_events) #Este es pa probar
 
 
@@ -202,6 +229,7 @@ def _create_table_events(table):
 
 # Add elements to table
 def _addProcess(table, process):
+    print(f'Inserccion Proceso PROCESSSSSSSSSSSS {process.id}')
     table.insert("", END, text=process.id, values=(
         process.life_Time,
         process.NextIO,
@@ -209,6 +237,7 @@ def _addProcess(table, process):
         process.status,
         process.quantum
     ))
+
 
 # Add events to table
 def _addEvents(table, text):

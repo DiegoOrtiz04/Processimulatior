@@ -8,6 +8,8 @@ from time import sleep
 import time
 import random
 
+
+dicProcess = {}
 class Cpu:
 
     def __init__(self):
@@ -33,7 +35,7 @@ class Simulator:
         self.max_next_IO_time = max_next_IO_time
         self.max_IO_execution_time = max_IO_execution_time
         self.quantum = quantum
-        self.nextProcessCreator = self.randomGeneratorTimeNextProcess();
+        self.nextProcessCreator = self.randomGeneratorTimeNextProcess()
         self.actualProcess= None
         self.processCreator = ProcessCreator(0)
         self.cpu = Cpu()
@@ -191,7 +193,8 @@ class Process:
 
     def print_information(self):
         print("Id: " , self.id , ", Life Time: ", self.life_Time,"/" , self.default_life_time , ", Next IO:",self.NextIO,"/" , self.default_nextIo , ", IO: " , self.IO ,"/",self.default_IO ,", Status: " , self.status , ", quantum: " ,  self.quantum)
-
+        dicProcess[self.id]=(self.id, self.life_Time, self.default_life_time, self.NextIO, self.default_nextIo, self.IO, self.default_IO, self.status, self.quantum)
+        #print(dicProcess.get(self.id))
 class ProcessCreator:
 
     def __init__(self,processNumber):
