@@ -110,6 +110,7 @@ class Simulator:
     def actualProcessActualization(self):
          if self.actualProcess != None:
                 if self.actualProcess.getLifeTime()<=0:
+                    self.actualProcess.setStatus("finished");
                     self.actualProcess=None
                     self.finishedProcesses = self.finishedProcesses +1
                 if self.actualProcess != None:
