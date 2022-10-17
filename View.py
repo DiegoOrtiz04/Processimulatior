@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from datetime import datetime
 import threading
-from Processimulator import Cpu, Process, ProcessCreator,Simulator,dicProcess
+from Processimulator import Cpu, Process, ProcessCreator,Simulator,dicProcess,listEvents, getBussy
 from tkinter.constants import CENTER, NO, END, RIGHT, Y
 import constants as cs
 
@@ -78,10 +78,19 @@ def updateTableProcess():
     table_process.delete(*table_process.get_children())
     for clave in dicProcess:
         procesos=dicProcess[clave]
-        _addProcess(table_process, Process(procesos[0], str(procesos[1])+"/"+str(procesos[2]), str(procesos[3])+"/"+str(procesos[4]), str(procesos[5]), str(procesos[6])))
-
+        _addProcess(table_process, Process(procesos[0], str(procesos[1])+"/"+str(procesos[2]), str(procesos[3])+"/"+str(procesos[4]), str(procesos[5])+"/"+str(procesos[6]),procesos[7]),str(procesos[8]))
+    updateTableEvents()
     ventana.after(1000, updateTableProcess)
 
+def updateTableEvents():
+    table_events.delete(*table_events.get_children())
+    for event in listEvents:
+        _addEvents(table_events,event)
+    if getBussy['status']:
+        labelEstadoCPU.config(text=mensajeEstadoCpu+' Bussy')
+    else:
+        print(getBussy)
+        labelEstadoCPU.config(text=mensajeEstadoCpu + ' Idle')
 
 
 #Componente Titulo Principal
@@ -228,14 +237,13 @@ def _create_table_events(table):
 
 
 # Add elements to table
-def _addProcess(table, process):
-    print(f'Inserccion Proceso PROCESSSSSSSSSSSS {process.id}')
+def _addProcess(table, process,quantum):
     table.insert("", END, text=process.id, values=(
         process.life_Time,
         process.NextIO,
         process.IO,
         process.status,
-        process.quantum
+        quantum
     ))
 
 
