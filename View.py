@@ -6,6 +6,13 @@ import threading
 from Processimulator import Cpu, Process, ProcessCreator,Simulator,dicProcess,listEvents, getBussy
 from tkinter.constants import CENTER, NO, END, RIGHT, Y
 import constants as cs
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.figure import Figure
+from pandas import DataFrame
+import random 
 
 
 #Variable de simulacion
@@ -39,6 +46,7 @@ mensajeColaProcesos = 'Cola de Procesos en:'
 fuenteTitulo =('Mixed',30)
 fuentePrincipal =('Mixed,20')
 mensajeTablaProcesos='Cola de procesos: '
+list_length_process = [3, 5, 10]
 
 #Ventana Principal
 ventana = tk.Tk()
@@ -162,9 +170,9 @@ comboBoxEstadosProcesos.grid(row=4, column=3,sticky='N')
 #GraficaEstadoProcesos
 imageEstadosProcesos = tk.PhotoImage(file='sources/images/grapframe.png')
 labelGrapfEstadosProceso = tk.Label(ventana, image=imageEstadosProcesos, bg=colorFondo, bd=0)
-labelGrapfEstadosProceso.grid(row=5, column=1, sticky='NSWE',columnspan=4, rowspan=2)
-panelEstadoProcesos = tk.PanedWindow(ventana,  bg='yellow', width=280, height=160)
-panelEstadoProcesos.grid(row=5, column=1,columnspan=4, rowspan=2)
+labelGrapfEstadosProceso.grid(row=5, column=1, sticky='NSWE',columnspan=5, rowspan=3)
+panelEstadoProcesos = tk.PanedWindow(ventana,  bg='white', width=280, height=160)
+panelEstadoProcesos.grid(row=5, column=1,columnspan=5, rowspan=3)
 
 
 #TextArea Eventos
@@ -228,11 +236,8 @@ def _create_table_process(table, columnsInput):
     table.heading(cs.COLUMNS_NAME[4], text=columnsInput[5], anchor=CENTER)
     table.pack()
 
-def _create_table_events(table):
-    table.column("#0", width=80, anchor=CENTER)
-    #table.column(cs.COLUMNS_NAME[0], width=80, anchor=CENTER)
-    table.heading("#0", text=cs.COLUMN_NAME_EVENTS, anchor=CENTER)
-    table.pack()
+
+
 
 
 
@@ -268,7 +273,32 @@ def _test_table_events(table):
 
 
 
-_init()
 
 
+
+def _set_list_numbers(list_ready,list_blocked,list_finished):
+    list_length_process = [list_ready.__len__(), list_blocked.__len__(),list_finished.__len__()]
+
+
+def _create_histogram():
+    #data_labels = ["Busy","Ready","Finished"]
+    data1 = {'Status': ['Busy', 'Ready', 'Finished'],
+             'NoProcess': list_length_process
+             }
+    df1 = DataFrame(data1, columns=['Status', 'NoProcess'])
+    figure1 = plt.Figure(figsize=(8, 6), dpi=40)
+    ax1 = figure1.add_subplot(111)
+    bar1 = FigureCanvasTkAgg(figure1, panelEstadoProcesos)
+    bar1.get_tk_widget().grid(row=0, column=0, sticky='SNWE')
+    df1 = df1[['Status', 'NoProcess']].groupby('Status').sum()
+    df1.plot(kind='bar', legend=True, ax=ax1, fontsize=20)
+    ax1.set_title('Current Process Status', fontsize=20)
+
+table_process = _set_properties_table_process(panelTablaProcesos)
+table_events= _set_properties_table_events(panelEventos)
+
+
+updateTableProcess()
+_create_histogram()
+#_init()
 ventana.mainloop()
