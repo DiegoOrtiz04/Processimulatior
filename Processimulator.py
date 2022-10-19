@@ -62,7 +62,7 @@ class Simulator:
                 if len(self.readyProcessList)>0:
                     self.actualProcess = self.readyProcessList.pop(0)
                     self.actualProcess.setQuantum(self.quantum) 
-                    self.actualProcess.setStatus("Runnig")
+                    self.actualProcess.setStatus("Running")
                     print("Process ", self.actualProcess.getId(), "assigned to CPU")
                     listEvents.append("Process "+str(self.actualProcess.getId())+ "assigned to CPU")
                     self.cpu.setBussy(True)
